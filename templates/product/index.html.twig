@@ -1,0 +1,157 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+<div class="container mt-5">
+    {# Flash message for success or error alerts #}
+    {% for label, messages in app.flashes %}
+    <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+        {% for message in messages %}
+        {{ message }}
+        {% endfor %}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    {% endfor %}
+
+    <h1>Product List</h1>
+    <a class="btn btn-primary mb-3" href="{{ path('app_product_new') }}">Create new</a>
+    <a class="btn btn-success mb-3" id="exportCsv" href="#">Export to CSV</a>
+    <a class="btn btn-warning mb-3" href="{{ path('app_product_import') }}">Import Products</a>
+
+    <form method="get" action="{{ path('app_product_search') }}" class="mb-3">
+        <div class="row g-3">
+            <!-- Name Field -->
+            <div class="col-md-2">
+                <input class="form-control" type="text" name="name" placeholder="Search by name"
+                    value="{{ searchParams.name ?? '' }}">
+            </div>
+
+            <!-- Min Price Field -->
+            <div class="col-md-2">
+                <input class="form-control" type="number" name="min_price" placeholder="Min Price"
+                    value="{{ searchParams.priceRange[0] ?? '' }}">
+            </div>
+
+            <!-- Max Price Field -->
+            <div class="col-md-2">
+                <input class="form-control" type="number" name="max_price" placeholder="Max Price"
+                    value="{{ searchParams.priceRange[1] ?? '' }}">
+            </div>
+
+            <!-- Stock Quantity Field -->
+            <div class="col-md-2">
+                <input class="form-control" type="number" name="stock_quantity" placeholder="Min Stock Quantity"
+                    value="{{ searchParams.stockQuantity ?? '' }}">
+            </div>
+
+            <!-- Created Datetime Field -->
+            <div class="col-md-2">
+                <input class="form-control" type="date" name="created_datetime" placeholder="Created After"
+                    value="{{ searchParams.createdDatetime ?? '' }}">
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-dark">Search</button>
+                <a href="{{ path('app_product_index') }}" class="btn btn-danger">
+                    <i class="bi bi-arrow-left"></i> Reset
+                </a>
+            </div>
+        </div>
+    </form>
+
+    {# Products Table #}
+    <table id="productTable" class="table table-striped">
+        <thead class="thead-light">
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Price</th>
+                <th scope="col">Description</th>
+                <th scope="col">Stock Quantity</th>
+                <th scope="col">Created Datetime (SG)</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if products is empty %}
+            <tr>
+                <td colspan="5" class="text-center">No products found.</td>
+            </tr>
+            {% else %}
+            {% for product in products %}
+            <tr>
+                <td>{{ product.name }}</td>
+                <td>{{ product.price }}</td>
+                <td>{{ product.description }}</td>
+                <td>{{ product.stockQuantity }}</td>
+                <td>{{ product.createdDatetime|date('Y-m-d H:i:s', 'Asia/Singapore') }}</td>
+                <td>
+                    <a class="btn btn-outline-primary text-dark mb-2"
+                        href="{{ path('app_product_edit', { 'id': product.id }) }}">Edit</a>
+                    <a class="btn btn-outline-warning text-dark mb-2"
+                        href="{{ path('app_product_show', { 'id': product.id }) }}">Show</a>
+                    <form action="{{ path('app_product_delete', { 'id': product.id }) }}" method="post"
+                        style="display: inline;">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ product.id) }}">
+                        <button type="submit" class="btn btn-outline-danger mb-2">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $('#productTable').DataTable({
+            searching: false,
+            pageLength: 5,
+            lengthMenu: [5, 10, 25, 50],
+        });
+    });
+
+    document.getElementById('exportCsv').addEventListener('click', function () {
+        // Get table data
+        var data = [];
+        var table = $('#productTable').DataTable();
+
+        // Get table headers
+        var headers = [];
+        $('#productTable thead th').each(function () {
+            headers.push($(this).text());
+        });
+        data.push(headers.join(',')); // Push header row
+
+        // Get table rows
+        table.rows().every(function (rowIdx, tableLoop, rowLoop) {
+            var rowData = this.data();
+            data.push([
+                rowData[0], // Name
+                rowData[1], // Price
+                rowData[2], // Description (added)
+                rowData[3], // Stock Quantity
+                new Date(rowData[4]).toLocaleString('en-SG') // Created Datetime in SG timezone
+            ].join(','));
+        });
+
+        // Create a CSV blob
+        var csvContent = data.join('\n');
+        var blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        var url = URL.createObjectURL(blob);
+
+        // Create a link to download the CSV
+        var link = document.createElement("a");
+        link.setAttribute("href", url);
+        var now = new Date();
+        var formattedDate = now.toISOString().slice(0, 10).replace(/-/g, ''); // YYYYMMDD
+
+        link.setAttribute("download", "products_" + formattedDate + ".csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    });
+</script>
+
+{% endblock %}

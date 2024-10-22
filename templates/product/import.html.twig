@@ -1,0 +1,28 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+<div class="container mt-5">
+    <h1>Import Products</h1>
+
+    {# Flash message for success or error alerts #}
+    {% for label, messages in app.flashes %}
+    <div class="alert alert-{{ label }} alert-dismissible fade show" role="alert">
+        {% for message in messages %}
+        {{ message }}
+        {% endfor %}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    {% endfor %}
+
+    {{ form_start(form) }}
+    {{ form_widget(form) }}
+    <button class="btn btn-dark">Import</button>
+    {{ form_end(form) }}
+
+    <a class="btn btn-secondary mt-3" href="{{ path('app_product_index') }}">Back to Product List</a>
+</div>
+
+{% endblock %}

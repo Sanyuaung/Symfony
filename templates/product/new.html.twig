@@ -1,0 +1,73 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New Product{% endblock %}
+
+{% block body %}
+
+<div class="container mt-5">
+    <h1 class="mb-4">Create Product</h1>
+    <div class="mb-3">
+        <a href="{{ path('app_product_index') }}" class="btn btn-dark">
+            <i class="bi bi-arrow-left"></i> Back to List
+        </a>
+    </div>
+
+    {# Display flash messages #}
+    {% for message in app.flashes('success') %}
+    <div class="alert alert-success">
+        {{ message }}
+    </div>
+    {% endfor %}
+    {% for message in app.flashes('error') %}
+    <div class="alert alert-danger">
+        {{ message }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    {% endfor %}
+
+    {{ form_start(form, {'attr': {'class': 'form-horizontal'}}) }}
+
+    <div class="mb-3">
+        {{ form_label(form.name, 'Product Name', {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_widget(form.name, {'attr': {'class': 'form-control'}}) }}
+        {# Display error messages for the name field #}
+        {% for error in form.name.vars.errors %}
+        <div class="text-danger">{{ error.message }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="mb-3">
+        {{ form_label(form.description, 'Description', {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_widget(form.description, {'attr': {'class': 'form-control'}}) }}
+        {# Display error messages for the name field #}
+        {% for error in form.description.vars.errors %}
+        <div class="text-danger">{{ error.message }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="mb-3">
+        {{ form_label(form.price, 'Price', {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_widget(form.price, {'attr': {'class': 'form-control'}}) }}
+        {# Display error messages for the name field #}
+        {% for error in form.price.vars.errors %}
+        <div class="text-danger">{{ error.message }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="mb-3">
+        {{ form_label(form.stockQuantity, 'Stock Quantity', {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_widget(form.stockQuantity, {'attr': {'class': 'form-control'}}) }}
+        {# Display error messages for the name field #}
+        {% for error in form.stockQuantity.vars.errors %}
+        <div class="text-danger">{{ error.message }}</div>
+        {% endfor %}
+    </div>
+
+    <button type="submit" class="btn btn-primary">{{ button_label|default('Save') }}</button>
+
+    {{ form_end(form) }}
+</div>
+
+{% endblock %}

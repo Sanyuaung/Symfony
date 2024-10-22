@@ -1,0 +1,9 @@
+knp_paginator:
+    page_range: 5            # The number of pages to display in pagination links
+    default_options:
+        page_name: page       # The query parameter for the current page number
+        sort_field_name: sort # The query parameter for sorting
+        sort_direction_name: direction # The query parameter for sorting direction
+        distinct: true        # Ensure distinct query on pagination
+    template:
+        pagination: '@KnpPaginator/Pagination/bootstrap_v5_pagination.html.twig' # Use Bootstrap 5 pagination template
